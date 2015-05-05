@@ -1,5 +1,7 @@
 # MC Hammer
 
+[![NPM version][1]][2] [![Build Status][3]][4] [![Coverage Status][5]][6]
+
 This is a really simple library for creating sort-of-immutable data structures in Javascript. It's called "MC Hammer" because you "can't touch this". Why might you want to use it? Mainly because you are interested in referential transparency and want something to remind you about immutability.
 
 This library does not provide deep immutability of built-ins like [seamless-immutable](seamless) or a rich API like [Immutable](https://github.com/facebook/immutable-js/). What it gives you is an easy way to create and (non-destructively) update objects that have read-only properties and methods.
@@ -182,3 +184,10 @@ Note that if you are comparing versioned objects and you specify a list of prope
 ## Contributing
 
 If you see an open issue you want to tackle, be my guest. If you have a problem or feature suggestion, please create a new issue. Thanks!
+
+[1]: https://badge.fury.io/js/mchammer.svg
+[2]: https://badge.fury.io/js/mchammer
+[3]: https://secure.travis-ci.org/cooper-software/mchammer.svg
+[4]: https://travis-ci.org/rtfeldman/mchammer
+[5]: http://img.shields.io/coveralls/cooper-software/mchammer.svg
+[6]: https://coveralls.io/r/cooper-software/mchammer

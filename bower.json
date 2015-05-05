@@ -1,8 +1,8 @@
 {
   "name": "mchammer",
   "main": "build/mchammer.min.js",
-  "version": "1.0.0",
-  "description": "Immutable data structures with optional versioning",
+  "version": "1.0.1",
+  "description": "Sort-of-immutable data structures with optional versioning",
   "moduleType": [
     "amd",
     "globals",

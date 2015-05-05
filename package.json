@@ -1,13 +1,13 @@
 {
   "name": "mchammer",
-  "version": "1.0.0",
-  "description": "Immutable data structures with optional versioning",
+  "version": "1.0.1",
+  "description": "Sort-of-immutable data structures with optional versioning",
   "main": "mchammer.js",
   "scripts": {
     "build": "gulp",
     "test": "mocha mchammer.spec.js",
     "test-watch": "mocha mchammer.spec.js -w",
-    "coverage": "istanbul cover _mocha -- mchammer.spec.js; echo \"\nCoverage report is available at ./coverage/lcov-report/index.html\"",
+    "coverage": "istanbul cover _mocha -- mchammer.spec.js",
     "coveralls": "npm run-script coverage && coveralls < coverage/lcov.info"
   },
   "repository": {
