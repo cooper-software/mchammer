@@ -1,0 +1,27 @@
+{
+  "name": "mchammer",
+  "main": "build/mchammer.min.js",
+  "version": "1.0.0",
+  "description": "Immutable data structures with optional versioning",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "immutable",
+    "model"
+  ],
+  "authors": [
+    "Elisha Fitch-Cook <elisha@cooper.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/cooper-software/mchammer",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

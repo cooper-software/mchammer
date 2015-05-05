@@ -1,0 +1,43 @@
+{
+  "name": "mchammer",
+  "version": "1.0.0",
+  "description": "Immutable data structures with optional versioning",
+  "main": "mchammer.js",
+  "scripts": {
+    "build": "gulp",
+    "test": "mocha mchammer.spec.js",
+    "test-watch": "mocha mchammer.spec.js -w",
+    "coverage": "istanbul cover _mocha -- mchammer.spec.js; echo \"\nCoverage report is available at ./coverage/lcov-report/index.html\"",
+    "coveralls": "npm run-script coverage && coveralls < coverage/lcov.info"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elishacook/mchammer"
+  },
+  "keywords": [
+    "immutable",
+    "model"
+  ],
+  "author": "Elisha Fitch-Cook <elisha@cooper.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/elishacook/mchammer/issues"
+  },
+  "homepage": "https://github.com/elishacook/mchammer",
+  "devDependencies": {
+    "browserify": "^9.0.8",
+    "chai": "^2.2.0",
+    "coveralls": "^2.11.2",
+    "gulp": "^3.8.11",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-uglify": "^1.2.0",
+    "gulp-util": "^3.0.4",
+    "istanbul": "^0.3.13",
+    "mocha": "^2.2.4",
+    "sinon": "^1.14.1",
+    "sinon-chai": "^2.7.0",
+    "uglify-js": "^2.4.20",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
