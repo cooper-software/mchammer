@@ -151,10 +151,17 @@ var Model = function (default_props, versioned)
 		return true
 	}
 	
-	var model = function (props, default_props_arg)
+	var model = function (props, backup_props)
 	{
 		props = props || {}
-		set_properties(this, props || {}, default_props_arg || default_props)
+		
+		if (versioned && (!backup_props || !backup_props._id) && !props._id)
+		{
+			props._id = model_version + '-' + ++instance_id
+			props._version = model_version + '-' + ++instance_version
+		}
+		
+		set_properties(this, props || {}, backup_props || default_props)
 	}
 	model._parent = Model
 	

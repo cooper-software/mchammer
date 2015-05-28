@@ -189,7 +189,8 @@ describe("Model", function ()
 	{
 		var Foo = new Model({}, true),
 			foo = new Foo(),
-			foo2 = foo.update({})
+			foo2 = foo.update({}),
+			foo3 = new Foo()
 		
 		expect(Object.keys(foo)).to.eql(['_id', '_version', 'update', 'equals'])
 		expect(Foo._version).to.be.defined
@@ -198,6 +199,8 @@ describe("Model", function ()
 		expect(foo2._id).to.equal(foo._id)
 		expect(foo2._version).to.be.defined
 		expect(foo2._version).to.not.equal(foo._version)
+		expect(foo3._id).to.be.defined
+		expect(foo3._id).to.not.equal(foo._id)
 	})
 	
 	it('passes versioning on to children', function ()
