@@ -188,6 +188,6 @@ If you see an open issue you want to tackle, be my guest. If you have a problem 
 [1]: https://badge.fury.io/js/mchammer.svg
 [2]: https://badge.fury.io/js/mchammer
 [3]: https://secure.travis-ci.org/cooper-software/mchammer.svg
-[4]: https://travis-ci.org/rtfeldman/mchammer
+[4]: https://travis-ci.org/cooper-software/mchammer
 [5]: http://img.shields.io/coveralls/cooper-software/mchammer.svg
 [6]: https://coveralls.io/r/cooper-software/mchammer
