@@ -1,6 +1,6 @@
 {
   "name": "mchammer",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Sort-of-immutable data structures with optional versioning",
   "main": "mchammer.js",
   "scripts": {

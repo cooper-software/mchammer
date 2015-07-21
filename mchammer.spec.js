@@ -64,7 +64,7 @@ describe("Model", function ()
 	
 	it('overrides default properties', function ()
 	{
-		var Foo = Model({ fields: { a: 1, b: function () { return 2 } } }),
+		var Foo = Model({ fields: { a: 1, b: function (x) { return x || 2 } } }),
 			foo = new Foo({ a: 666, b: 777 })
 		
 		expect(foo.a).equal(666)

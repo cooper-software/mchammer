@@ -131,23 +131,8 @@ Object.defineProperty(
 function Model (options)
 {
 	options = options || {}
-	var raw_default_fields = options.fields || {},
-		field_names = Object.keys(raw_default_fields),
-		default_fields = {}
-	
-	field_names.forEach(function (k)
-	{
-		var v = raw_default_fields[k]
-		
-		if (typeof v == "function")
-		{
-			default_fields[k] = v
-		}
-		else
-		{
-			default_fields[k] = function () { return v }
-		}
-	})
+	var default_fields = options.fields || {},
+		field_names = Object.keys(default_fields)
 	
 	var ModelInst = function (props, backup_props)
 	{
@@ -164,7 +149,23 @@ function Model (options)
 		
 		field_names.forEach(function (k)
 		{
-			var v = props[k] !== undefined ? props[k] : (backup_props[k] !== undefined ? backup_props[k] : default_fields[k]())
+			var v = props[k] !== undefined ? props[k] : backup_props[k]
+			
+			if (v === undefined)
+			{
+				if (typeof default_fields[k] == "function")
+				{
+					v = default_fields[k]()
+				}
+				else
+				{
+					v = default_fields[k]
+				}
+			}
+			else if (typeof default_fields[k] == "function")
+			{
+				v = default_fields[k](v)
+			}
 			
 			Object.defineProperty(
 				this, 
