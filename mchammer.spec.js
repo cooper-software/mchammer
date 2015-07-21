@@ -1,7 +1,7 @@
 "use strict"
 
 var expect = require("chai").expect,
-	Model = require('./mchammer')
+	Model = require('./mchammer').Model
 	
 describe("Model", function ()
 {

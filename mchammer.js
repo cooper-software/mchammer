@@ -290,4 +290,6 @@ Model.mutable_copy = function (inst)
 	return mutable_inst
 }
 
-module.exports = Model
+module.exports = {
+	Model: Model
+}

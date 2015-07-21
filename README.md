@@ -23,8 +23,8 @@ bower install mchammer
 and if you are using node/commonjs
 
 ```js
-var mchammer = require('mchammer'),
-	Foo = mchammer.Model()
+var Model = require('mchammer').Model,
+	Foo = Model()
 ```
 
 or AMD
@@ -32,7 +32,7 @@ or AMD
 ```js
 define(['mchammer'], function (mchammer)
 {
-	var Foo = Model()
+	var Foo = mchammer.Model()
 })
 ```
 
@@ -51,13 +51,17 @@ var Model = require('mchammer').Model
 
 var Writer = Model(
 {
-	name: 'Unknown',
-	number_of_books: 0,
-	something: 'Derp!',
+	fields: {
+		name: 'Unknown',
+		number_of_books: 0,
+		something: 'Derp!'
+	},
 	
-	say_something: function ()
-	{
-		return this.something
+	methods: {
+		say_something: function ()
+		{
+			return this.something
+		}
 	}
 })
 ```
@@ -90,26 +94,67 @@ var the_real_writer = writer.update({ something: 'Boo!' })
 the_real_writer.say_something() // 'Boo!'
 ```
 
+## Fields
+
+To define the fields a Model has, use the `fields` options.
+
+```js
+var Foo = Model({ fields: { name: 'Steve' } }),
+	foo = new Foo()
+console.log(foo.name) // 'Steve'
+```
+
+Fields can also be functions, in which case they are transformers for whatever value is passed in during instantiation, including `undefined`.
+
+```js
+var Foo = Model({ fields: { name: function (x) { return (x ? 'Steve '+x : 'Nameless') } } }),
+	foo1 = new Foo(),
+	foo2 = new Foo({ name: 'Blobface' })
+
+console.log(foo1.name) // 'Nameless'
+console.log(foo2.name) // 'Steve Blobface'
+```
+
+Fields are immutable. Don't bother trying to set them.
+
+```js
+foo2.name = 'Andrea Blobface' // TypeError("Cannot assign to read only property 'name' of [object Object]")
+```
+
+Also, if you didn't define a field when you created the model, you can't do it later.
+
+```js
+var Foo = Model(),
+	foo1 = new Foo(),
+	foo2 = new Foo({ stuff: 'things' }) // Error('Unknown field "stuff"'),
+	foo3 = foo1.update({ skidoo: 23 }) // Error('Unknown field "skidoo"')
+```
+
 ## Inheritance
 
-Existing models can be extended. This is simple prototypical inheritance but some records are kept so you can tell which models a given model was extended from.
-
+Existing models can be extended.
 ```js
 var Model = require('mchammer').Model
 
 var Instrument = Model(
 {
-	sound: '...',
+	fields: {
+		sound: '...'
+	},
 	
-	play: function ()
-	{
-		return this.sound
+	methods: {
+		play: function ()
+		{
+			return this.sound
+		}
 	}
 })
 
 var Guitar = Model.extend(Instrument,
 {
-	sound: 'Twang Twang'
+	fields: {
+		sound: 'Twang Twang'
+	}
 })
 
 var Martin = Model.extend(Guitar)
@@ -121,47 +166,16 @@ Model.is_instance(martin_guitar, Martin) // true
 Model.is_instance(martin_guitar, Instrument) // true
 ```
 
-## Versioning
-
-You can turn on versioning for a model when you define it like so:
-
-```js
-var Roadrunner = Model(
-{
-	speed: 10,
-	location: 'on the road'
-}, true) // The second argument is the versioning flag
-```
-
-This does a few things. It gives each newly constructed instance a unique id and version
-
-```js
-var runner = new Roadrunner()
-runner._id // "1-1"
-runner._version // "1-1"
-```
-
-and each time the instance is updated, the version string changes
-
-```js
-var still_runner = runner.update({ speed: 0 })
-still_runner._id // "1-1"
-still_runner._version // "1-2"
-```
-
-This can improve the performance of things like diffing large structures or cache maintenance by avoiding deep comparisons between objects. That's how it's used in [baseline](http://github.com/cooper-software/baseline).
-
-Version and ID strings are not universally unique. They are only guaranteed to be unique within the current interpreter.
-
 ## Comparisons
 
 You can Deeply compare two `Model` instances like so
 
 ```js
-var SweetMove = Model(
-	{
-		name: 'spin',
-		danger_level: 1
+var SweetMove = Model({
+		fields: {
+			name: 'spin',
+			danger_level: 1
+		}
 	}),
 	spin = new SweetMove(),
 	twirl = new SweetMove(),
@@ -178,8 +192,6 @@ var backbend = new SweetMove({ name: 'backbend', danger_level: 5 })
 cartwheel.equals(backbend) // false
 cartwheel.equals(backbend, ['danger_level']) // true
 ```
-
-Note that if you are comparing versioned objects and you specify a list of properties to compare, the version will not be considered unless it is in the property list.
 
 ## Contributing
 
