@@ -1,196 +1,262 @@
 "use strict"
 
-function set_properties(obj, props, default_props)
+// Compare two model properties for equality
+var prop_equals = function (a, b)
 {
-	for (var k in props)
+	if (a === b)
 	{
-		if (props.hasOwnProperty(k) && !default_props.hasOwnProperty(k))
-		{
-			throw new Error('Unknown property "'+k+'"')
-		}
-	}
-	
-	Object.keys(default_props).forEach(function (k)
-	{
-		Object.defineProperty(obj, k, 
-		{
-			configurable: false,
-			enumerable: true,
-			value: props[k] !== undefined ? props[k] : default_props[k],
-			writable: false
-		})
-	})
-}
-
-var model_version = 0
-
-var Model = function (default_props, versioned)
-{
-	var default_props = default_props || {},
-		instance_version = 0,
-		instance_id = 0
-	
-	if (versioned)
-	{
-		model_version++
-		default_props._id = model_version + '-' + instance_id
-		default_props._version = model_version + '-' + instance_version
-	}
-	
-	default_props.update = function (props)
-	{
-		if (versioned)
-		{
-			props._version = model_version + '-' + ++instance_version
-		}
-		return new this.constructor(props, this)
-	}
-	
-	var prop_equals = function (a, b, check_version)
-	{
-		if (a === b)
-		{
-			return true
-		}
-		
-		if (typeof b === "undefined" || typeof a === "undefined" ||
-			b === null || a === null)
-		{
-			return a == b
-		}
-		
-		if (a.constructor != b.constructor)
-		{
-			return false
-		}
-		
-		if (check_version && a._version != b._version)
-		{
-			return false
-		}
-		
-		if (a.equals)
-		{
-			return a.equals(b)
-		}
-		else if (b.equals)
-		{
-			return b.equals(a)
-		}
-		else if (a.constructor == Array)
-		{
-			if (a.length != b.length)
-			{
-				return false
-			}
-			for (var i=0; i<a.length; i++)
-			{
-				if (!prop_equals(a[i], b[i]))
-				{
-					return false
-				}
-			}
-			return true
-		}
-		else if (a instanceof Object)
-		{
-			for (var k in a)
-			{
-				if (a.hasOwnProperty(k) && k != '_version')
-				{
-					if (!prop_equals(a[k], b[k]))
-					{
-						return false
-					}
-				}
-			}
-			return true
-		}
-		else
-		{
-			return a == b
-		}
-	}
-	
-	default_props.equals = function (other, only)
-	{
-		if (this === other)
-		{
-			return true
-		}
-		
-		if (this.constructor !== other.constructor)
-		{
-			return false
-		}
-		
-		if (only)
-		{
-			for (var i=0; i<only.length; i++)
-			{
-				if (!prop_equals(this[only[i]], other[only[i]]))
-				{
-					return false
-				}
-			}
-		}
-		else
-		{
-			for (var k in default_props)
-			{
-				if (default_props.hasOwnProperty(k))
-				{
-					if (!prop_equals(this[k], other[k]))
-					{
-						return false
-					}
-				}
-			}
-		}
-		
 		return true
 	}
 	
-	var model = function (props, backup_props)
+	if (typeof b === "undefined" || typeof a === "undefined" ||
+		b === null || a === null)
 	{
-		props = props || {}
-		
-		if (versioned && (!backup_props || !backup_props._id) && !props._id)
+		return a == b
+	}
+	
+	if (a.constructor != b.constructor)
+	{
+		return false
+	}
+	
+	if (a.equals)
+	{
+		return a.equals(b)
+	}
+	else if (b.equals)
+	{
+		return b.equals(a)
+	}
+	else if (a.constructor == Array)
+	{
+		if (a.length != b.length)
 		{
-			props._id = model_version + '-' + ++instance_id
-			props._version = model_version + '-' + ++instance_version
+			return false
 		}
-		
-		set_properties(this, props || {}, backup_props || default_props)
+		for (var i=0; i<a.length; i++)
+		{
+			if (!prop_equals(a[i], b[i]))
+			{
+				return false
+			}
+		}
+		return true
 	}
-	model._parent = Model
-	
-	if (versioned)
+	else if (a instanceof Object)
 	{
-		model._version = model_version
+		for (var k in a)
+		{
+			if (a.hasOwnProperty(k))
+			{
+				if (!prop_equals(a[k], b[k]))
+				{
+					return false
+				}
+			}
+		}
+		return true
 	}
-	
-	return model
+	else
+	{
+		return a == b
+	}
 }
 
-Model.extend = function (parent, props)
+// Base prototype for all models
+
+var ModelPrototype = {}
+
+Object.defineProperty(
+	ModelPrototype,
+	'update',
+	{
+		configurable: false,
+		enumerable: false,
+		value: function (props)
+		{
+			return new this.constructor(props, this)
+		},
+		writable: false
+	}
+)
+
+Object.defineProperty(
+	ModelPrototype,
+	'equals',
+	{
+		configurable: false,
+		enumerable: false,
+		value: function (other, only)
+		{
+			if (this === other)
+			{
+				return true
+			}
+			
+			if (this.constructor !== other.constructor)
+			{
+				return false
+			}
+			
+			if (only)
+			{
+				for (var i=0; i<only.length; i++)
+				{
+					if (this.field_names.indexOf(only[i]) < 0)
+					{
+						throw new Error("Unknown field '"+only[i]+"'")
+					}
+					
+					if (!prop_equals(this[only[i]], other[only[i]]))
+					{
+						return false
+					}
+				}
+			}
+			else
+			{
+				return this.field_names.every(function (k)
+				{
+					return prop_equals(this[k], other[k])
+				}.bind(this))
+			}
+			
+			return true
+		},
+		writable: false
+	}
+)
+
+// Create a new model type
+function Model (options)
 {
-	var parent_inst = new parent(),
-		new_props = {},
+	options = options || {}
+	var raw_default_fields = options.fields || {},
+		field_names = Object.keys(raw_default_fields),
+		default_fields = {}
+	
+	field_names.forEach(function (k)
+	{
+		var v = raw_default_fields[k]
+		
+		if (typeof v == "function")
+		{
+			default_fields[k] = v
+		}
+		else
+		{
+			default_fields[k] = function () { return v }
+		}
+	})
+	
+	var ModelInst = function (props, backup_props)
+	{
 		props = props || {}
+		backup_props = backup_props || {}
+		
+		for (var k in props)
+		{
+			if (props.hasOwnProperty(k) && !default_fields.hasOwnProperty(k))
+			{
+				throw new Error('Unknown property "'+k+'"')
+			}
+		}
+		
+		field_names.forEach(function (k)
+		{
+			var v = props[k] !== undefined ? props[k] : (backup_props[k] !== undefined ? backup_props[k] : default_fields[k]())
+			
+			Object.defineProperty(
+				this, 
+				k, 
+				{
+					configurable: false,
+					enumerable: true,
+					value: v,
+					writable: false
+				}
+			)
+		}.bind(this))
+		
+		Object.defineProperty(
+			this, 
+			'field_names', 
+			{
+				configurable: false,
+				enumerable: false,
+				value: field_names,
+				writable: false
+			}
+		)
+	}
+	ModelInst.prototype = Object.create(ModelPrototype)
+	ModelInst.prototype.constructor = ModelInst
+	ModelInst.parent = Model
+	ModelInst.field_names = field_names
+	ModelInst.default_fields = default_fields
 	
-	Object.keys(parent_inst).forEach(function (k)
+	var methods = options.methods || {},
+		method_names = Object.keys(methods)
+	
+	method_names.forEach(function (k)
 	{
-		new_props[k] = parent_inst[k]
+		Object.defineProperty(
+			ModelInst.prototype,
+			k,
+			{
+				configurable: false,
+				enumerable: false,
+				value: methods[k],
+				writable: false
+			}
+		)
 	})
 	
-	Object.keys(props).forEach(function (k)
+	Object.defineProperty(
+		ModelInst.prototype,
+		'method_names',
+		{
+			configurable: false,
+			enumerable: false,
+			value: method_names,
+			writable: false
+		}
+	)
+	
+	ModelInst.method_names = method_names
+	
+	return ModelInst
+}
+
+Model.extend = function (parent, raw_options)
+{
+	raw_options = raw_options || {}
+	var raw_fields = raw_options.fields || {},
+		raw_methods = raw_options.methods || {},
+		options = { fields: {}, methods: {} }
+		
+	Object.keys(parent.default_fields).forEach(function (k)
 	{
-		new_props[k] = props[k]
+		options.fields[k] = parent.default_fields[k]
 	})
 	
-	var model = Model(new_props, typeof parent._version != "undefined")
-	model._parent = parent
+	Object.keys(raw_fields).forEach(function (k)
+	{
+		options.fields[k] = raw_fields[k]
+	})
+	
+	Object.keys(parent.method_names).forEach(function (k)
+	{
+		options.methods[k] = parent.prototype[k]
+	})
+	
+	Object.keys(raw_methods).forEach(function (k)
+	{
+		options.methods[k] = raw_methods[k]
+	})
+	
+	var model = Model(options)
+	model.parent = parent
 	return model
 }
 
@@ -198,14 +264,14 @@ Model.is_instance = function (inst, model)
 {
 	var child = inst.constructor
 	
-	while (child._parent)
+	while (child.parent)
 	{
-		if (child._parent === model)
+		if (child.parent === model)
 		{
 			return true
 		}
 		
-		child = child._parent
+		child = child.parent
 	}
 	
 	return false
@@ -215,7 +281,7 @@ Model.mutable_copy = function (inst)
 {
 	var mutable_inst = {}
 	
-	Object.keys(inst).forEach(function (k)
+	inst.field_names.forEach(function (k)
 	{
 		mutable_inst[k] = inst[k]
 	})
@@ -223,7 +289,4 @@ Model.mutable_copy = function (inst)
 	return mutable_inst
 }
 
-module.exports = 
-{
-	Model: Model
-}
+module.exports = Model
