@@ -246,7 +246,7 @@ Model.extend = function (parent, raw_options)
 		options.fields[k] = raw_fields[k]
 	})
 	
-	Object.keys(parent.method_names).forEach(function (k)
+	parent.method_names.forEach(function (k)
 	{
 		options.methods[k] = parent.prototype[k]
 	})

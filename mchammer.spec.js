@@ -190,8 +190,8 @@ describe("Model", function ()
 	
 	it('keeps parent methods and default fields when extending', function ()
 	{
-		var Foo = Model({ fields: { a: 1, b: function () { return 2 } } }),
-			Bar = Model.extend(Foo, { fields: { c: 'stuff' }, methods: { d: function () { return 'yep' } } }),
+		var Foo = Model({ fields: { a: 1, b: function () { return 2 } }, methods: { d: function () { return 'yep' } } }),
+			Bar = Model.extend(Foo, { fields: { c: 'stuff' } }),
 			bar = new Bar()
 		
 		expect(bar.a).to.equal(1)
